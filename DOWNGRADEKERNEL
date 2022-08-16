@@ -1,0 +1,39 @@
+##DOWNGRADE/ROLLBACK KERNEL PROXMOX##
+
+
+Open a terminal to your Proxmox server. Launch the command
+
+grep menuentry /boot/grub/grub.cfg
+and in there you'll need two things:
+
+if [ x"${feature_menuentry_id}" = xy ]; then
+  menuentry_id_option="--id"
+  menuentry_id_option=""
+export menuentry_id_option
+menuentry 'Proxmox VE GNU/Linux' --class proxmox --class gnu-linux --class gnu --class os $menuentry_id_option 'gnulinux-simple-9ad9efc6-6eeb-4015-88c2-b9c1ce8cf1a3' {
+submenu 'Advanced options for Proxmox VE GNU/Linux' $menuentry_id_option 'gnulinux-advanced-9ad9efc6-6eeb-4015-88c2-b9c1ce8cf1a3' {
+        menuentry 'Proxmox VE GNU/Linux, with Linux 5.13.19-3-pve' --class proxmox --class gnu-linux --class gnu --class os $menuentry_id_option 'gnulinux-5.13.19-3-pve-advanced-9ad9efc6-6eeb-4015-88c2-b9c1ce8cf1a3' {
+        menuentry 'Proxmox VE GNU/Linux, with Linux 5.13.19-3-pve (recovery mode)' --class proxmox --class gnu-linux --class gnu --class os $menuentry_id_option 'gnulinux-5.13.19-3-pve-recovery-9ad9efc6-6eeb-4015-88c2-b9c1ce8cf1a3' {
+        menuentry 'Proxmox VE GNU/Linux, with Linux 5.13.19-2-pve' --class proxmox --class gnu-linux --class gnu --class os $menuentry_id_option 'gnulinux-5.13.19-2-pve-advanced-9ad9efc6-6eeb-4015-88c2-b9c1ce8cf1a3' {
+        menuentry 'Proxmox VE GNU/Linux, with Linux 5.13.19-2-pve (recovery mode)' --class proxmox --class gnu-linux --class gnu --class os $menuentry_id_option 'gnulinux-5.13.19-2-pve-recovery-9ad9efc6-6eeb-4015-88c2-b9c1ce8cf1a3' {
+menuentry "Memory test (memtest86+)" {
+menuentry "Memory test (memtest86+, serial console 115200)" {
+menuentry "Memory test (memtest86+, experimental multiboot)" {
+menuentry "Memory test (memtest86+, serial console 115200, experimental multiboot)" {
+
+Modify the /etc/default/grub file with
+nano /etc/default/grub
+(or whatever your favourite text editor is). From there, delete the line that says
+
+GRUB_DEFAULT=0
+and replace it with
+GRUB_DEFAULT="menu entry ID>kernel ID"
+
+and use the two IDs you grabbed above. Don't forget to separate the IDs with the sign >.
+In my case, the line looks like this:
+
+"gnulinux-advanced-9ad9efc6-6eeb-4015-88c2-b9c1ce8cf1a3>gnulinux-5.13.19-3-pve-advanced-9ad9efc6-6eeb-4015-88c2-b9c1ce8cf1a3"
+
+Save and close the file, update the GRUB with
+update-grub
+and reboot.
