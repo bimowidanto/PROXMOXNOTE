@@ -1,0 +1,59 @@
+##Ubuntu 24.04 Cloud Image
+
+wget https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img
+
+qm create 9000 --name "ubuntu-2404-cloudinit-template" --memory 2048 --cores 2 --net0 virtio,bridge=vmbr0
+
+qm importdisk 9000 /var/lib/vz/template/iso/ubuntu-24.04-server-cloudimg-amd64.img local-lvm
+
+qm set 9000 --scsihw virtio-scsi-pci --scsi0 local-lvm:vm-9000-disk-0
+
+qm set 9000 --boot c --bootdisk scsi0
+
+qm set 9000 --serial0 socket --vga serial0
+
+qm set 9000 --ide2 local-lvm:cloudinit
+
+qm set 9000 --agent enabled=1
+
+qm set 9000 --ciuser ubuntu \
+--cipassword '$6$rounds=4096$yourSalt$yourHashedPassword' \
+--sshkeys ~/.ssh/authorized_keys \
+--citype nocloud \
+--ipconfig0 "ip=dhcp"
+
+qm template 9000
+
+qm resize 201 scsi0 +10G
+
+
+
+##AlmaLinux 9 Cloud Image
+
+wget https://repo.almalinux.org/almalinux/9/cloud/x86_64/images/AlmaLinux-9-GenericCloud-latest.x86_64.qcow2
+
+qemu-img convert -f qcow2 -O raw AlmaLinux-9-GenericCloud-latest.x86_64.qcow2 alma9.raw
+
+qm create 9001 --name "almalinux-9-cloudinit-template" --memory 2048 --cores 2 --net0 virtio,bridge=vmbr0
+
+qm importdisk 9001 alma9.raw local-lvm
+
+qm importdisk 9001 /var/lib/vz/template/iso/AlmaLinux-9-GenericCloud-latest.x86_64.qcow2 local-lvm
+
+qm set 9001 --scsihw virtio-scsi-pci --scsi0 local-lvm:vm-9001-disk-0
+
+qm set 9001 --ide2 local-lvm:cloudinit
+
+qm set 9001 --boot c --bootdisk scsi0
+
+qm set 9001 --agent enabled=1
+
+qm set 9001 --serial0 socket --vga serial0
+
+qm set 9001 --ciuser itlws \
+--cipassword '$6$rounds=4096$yourSalt$yourHashedPassword' \
+--sshkeys ~/.ssh/authorized_keys \
+--citype nocloud \
+--ipconfig0 "ip=dhcp"
+
+qm template 9001
