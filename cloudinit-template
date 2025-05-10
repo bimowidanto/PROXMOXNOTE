@@ -50,7 +50,7 @@ qm set 9001 --agent enabled=1
 
 qm set 9001 --serial0 socket --vga serial0
 
-qm set 9001 --ciuser itlws \
+qm set 9001 --ciuser alma \
 --cipassword '$6$rounds=4096$yourSalt$yourHashedPassword' \
 --sshkeys ~/.ssh/authorized_keys \
 --citype nocloud \
